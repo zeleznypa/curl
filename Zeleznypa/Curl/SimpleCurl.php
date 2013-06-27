@@ -39,9 +39,9 @@ class SimpleCurl
 	 */
 	public function execute()
 	{
-		curl_setopt_array($this->getHandler(), $this->getOptions());
-		$this->result = curl_exec($this->getHandler());
-		curl_close($this->getHandler());
+		$this->processOptions();
+		$this->processResponse();
+		$this->processClose();
 		return $this;
 	}
 
@@ -139,6 +139,39 @@ class SimpleCurl
 		}
 
 		return $this->handler;
+	}
+
+	/**
+	 * Process cURL options
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @return \Zeleznypa\Curl\SimpleCurl Provides fluent interface
+	 */
+	protected function processOptions()
+	{
+		curl_setopt_array($this->getHandler(), $this->getOptions());
+		return $this;
+	}
+
+	/**
+	 * Process cURL response
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @return \Zeleznypa\Curl\SimpleCurl Provides fluent interface
+	 */
+	protected function processResponse()
+	{
+		$this->result = curl_exec($this->getHandler());
+		return $this;
+	}
+
+	/**
+	 * Process cURL close
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @return \Zeleznypa\Curl\SimpleCurl Provides fluent interface
+	 */
+	protected function processClose()
+	{
+		curl_close($this->getHandler());
+		return $this;
 	}
 
 }
