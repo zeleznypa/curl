@@ -30,6 +30,9 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	/** @var array $info */
 	private $info;
 
+	/** @var integer $port */
+	private $port = 80;
+
 	/** @var callable $serializeDataFunction */
 	private $serializeDataFunction;
 
@@ -202,6 +205,28 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	}
 
 	/**
+	 * Communication port getter
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @return integer
+	 */
+	public function getPort()
+	{
+		return $this->port;
+	}
+
+	/**
+	 * Communication port setter
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @param integer $port
+	 * @return \Zeleznypa\Curl\Curl Provides fluent interface
+	 */
+	public function setPort($port)
+	{
+		$this->port = $port;
+		return $this;
+	}
+
+	/**
 	 * Serialize data function setter
 	 * @author Pavel Železný <info@pavelzelezny.cz>
 	 * @return callable
@@ -317,6 +342,7 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	{
 		$options[CURLOPT_CONNECTTIMEOUT] = 30;
 		$options[CURLOPT_CUSTOMREQUEST] = $this->getCommunicationMethod();
+		$options[CURLOPT_PORT] = $this->getPort();
 		$options[CURLOPT_POST] = $this->getCommunicationMethod() !== self::GET;
 		$options[CURLOPT_RETURNTRANSFER] = TRUE;
 		$options[CURLOPT_TIMEOUT] = 30;
