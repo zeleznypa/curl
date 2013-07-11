@@ -9,14 +9,41 @@ namespace Zeleznypa\Curl;
 class Curl extends \Zeleznypa\Curl\SimpleCurl
 {
 
+	const
+			DELETE = 'DELETE',
+			GET = 'GET',
+			POST = 'POST',
+			PUT = 'PUT';
+
 	/** @var array $arguments */
 	private $arguments = array();
+
+	/** @var string $communicationMethod */
+	private $communicationMethod = self::GET;
+
+	/** @var mixed $data */
+	private $data;
 
 	/** @var string $endpoint */
 	private $endpoint;
 
+	/** @var callable $serializeDataFunction */
+	private $serializeDataFunction;
+
 	/** @var string $url */
 	private $url;
+
+	/**
+	 * Constructor
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @param string $url
+	 * @return void
+	 */
+	public function __construct($url = NULL)
+	{
+		parent::__construct($url);
+		$this->setSerializeDataFunction(array($this, 'serializeData'));
+	}
 
 	/**
 	 * URL argument getter
@@ -91,6 +118,55 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	}
 
 	/**
+	 * Communication method getter
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @return string
+	 */
+	public function getCommunicationMethod()
+	{
+		return $this->communicationMethod;
+	}
+
+	/**
+	 * Communication method setter
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @param string $communicationMethod
+	 * @return \Zeleznypa\Curl\Curl Provides fluent interface
+	 * @throws \UnexpectedValueException
+	 */
+	public function setCommunicationMethod($communicationMethod)
+	{
+		if (in_array($communicationMethod, $this->getAvailableCommunicationMethod()) === FALSE)
+		{
+			throw new \UnexpectedValueException('Requested communication method is not from allowed one ( ' . implode(', ', $this->getAvailableCommunicationMethod()) . ' )');
+		}
+		$this->communicationMethod = $communicationMethod;
+		return $this;
+	}
+
+	/**
+	 * Post data getter
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @return mixed
+	 */
+	public function getData()
+	{
+		return $this->data;
+	}
+
+	/**
+	 * Post data setter
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @param mixed $data
+	 * @return \Zeleznypa\Curl\Curl Provides fluent interface
+	 */
+	public function setData($data)
+	{
+		$this->data = $data;
+		return $this;
+	}
+
+	/**
 	 * Endpoint getter
 	 * @author Pavel Železný <info@pavelzelezny.cz>
 	 * @return string
@@ -109,6 +185,33 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	public function setEndpoint($endpoint)
 	{
 		$this->endpoint = '/' . ltrim($endpoint, '/');
+		return $this;
+	}
+
+	/**
+	 * Serialize data function setter
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @return callable
+	 */
+	public function getSerializeDataFunction()
+	{
+		return $this->serializeDataFunction;
+	}
+
+	/**
+	 * Serialize data function setter
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @param callable $serializeDataFunction
+	 * @return \Zeleznypa\Curl\Curl Provides fluent interface
+	 * @throws \UnexpectedValueException
+	 */
+	public function setSerializeDataFunction($serializeDataFunction)
+	{
+		if (is_callable($serializeDataFunction) === FALSE)
+		{
+			throw new \UnexpectedValueException('Serialize data function have to be callable');
+		}
+		$this->serializeDataFunction = $serializeDataFunction;
 		return $this;
 	}
 
@@ -132,6 +235,31 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	{
 		$this->url = $url;
 		return $this;
+	}
+
+	/**
+	 * Available communication method getter
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @return array
+	 */
+	public function getAvailableCommunicationMethod()
+	{
+		return array(
+			self::DELETE,
+			self::GET,
+			self::POST,
+			self::PUT,
+		);
+	}
+
+	/**
+	 * Real request post fields data getter
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @return string
+	 */
+	public function getRequestPostFields()
+	{
+		return call_user_func($this->getSerializeDataFunction(), $this->getData());
 	}
 
 	/**
@@ -175,9 +303,17 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	protected function getDefaultOptions()
 	{
 		$options[CURLOPT_CONNECTTIMEOUT] = 30;
+		$options[CURLOPT_CUSTOMREQUEST] = $this->getCommunicationMethod();
+		$options[CURLOPT_POST] = $this->getCommunicationMethod() !== self::GET;
 		$options[CURLOPT_RETURNTRANSFER] = TRUE;
 		$options[CURLOPT_TIMEOUT] = 30;
 		$options[CURLOPT_URL] = $this->getRequestUrl();
+
+		/** Some clients are not happy, when they recieve POST data in GET request */
+		if ($this->getCommunicationMethod() !== self::GET)
+		{
+			$options[CURLOPT_POSTFIELDS] = $this->getRequestPostFields();
+		}
 		return $options;
 	}
 
@@ -190,6 +326,16 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	{
 		curl_setopt_array($this->getHandler(), $this->getRequestOptions());
 		return $this;
+	}
+
+	/**
+	 * Serialize POST data
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @return string
+	 */
+	protected function serializeData()
+	{
+		return http_build_query($this->getData());
 	}
 
 }
