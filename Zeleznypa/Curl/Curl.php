@@ -27,6 +27,9 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	/** @var string $endpoint */
 	private $endpoint;
 
+	/** @var array $info */
+	private $info;
+
 	/** @var callable $serializeDataFunction */
 	private $serializeDataFunction;
 
@@ -189,6 +192,16 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	}
 
 	/**
+	 * cURL response info getter
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @return array
+	 */
+	public function getInfo()
+	{
+		return $this->info;
+	}
+
+	/**
 	 * Serialize data function setter
 	 * @author Pavel Železný <info@pavelzelezny.cz>
 	 * @return callable
@@ -325,6 +338,18 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	protected function processOptions()
 	{
 		curl_setopt_array($this->getHandler(), $this->getRequestOptions());
+		return $this;
+	}
+
+	/**
+	 * Process cURL response
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @return \Zeleznypa\Curl\Curl Provides fluent interface
+	 */
+	protected function processResponse()
+	{
+		parent::processResponse();
+		$this->info = curl_getinfo($this->getHandler());
 		return $this;
 	}
 
