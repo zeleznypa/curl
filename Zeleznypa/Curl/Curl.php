@@ -12,6 +12,9 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	/** @var array $arguments */
 	private $arguments = array();
 
+	/** @var string $endpoint */
+	private $endpoint;
+
 	/** @var string $url */
 	private $url;
 
@@ -88,6 +91,28 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	}
 
 	/**
+	 * Endpoint getter
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @return string
+	 */
+	public function getEndpoint()
+	{
+		return $this->endpoint;
+	}
+
+	/**
+	 * Endpoint setter
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @param string $endpoint
+	 * @return \Zeleznypa\Curl\Curl Provides fluent interface
+	 */
+	public function setEndpoint($endpoint)
+	{
+		$this->endpoint = '/' . ltrim($endpoint, '/');
+		return $this;
+	}
+
+	/**
 	 * Get cURL destination address
 	 * @author Pavel Železný <info@pavelzelezny.cz>
 	 * @return string
@@ -116,18 +141,19 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	 */
 	public function getRequestUrl()
 	{
+		$url = ($this->getEndpoint() !== NULL) ? rtrim($this->getUrl(), '/') . $this->getEndpoint() : $this->getUrl();
 		$urlArguments = http_build_query($this->getArguments());
 		if ($urlArguments === '')
 		{
-			return $this->getUrl();
+			return $url;
 		}
-		elseif (strpos($this->getUrl(), '?') === FALSE)
+		elseif (strpos($url, '?') === FALSE)
 		{
-			return $this->getUrl() . '?' . $urlArguments;
+			return $url . '?' . $urlArguments;
 		}
 		else
 		{
-			return $this->getUrl() . '&' . $urlArguments;
+			return $url . '&' . $urlArguments;
 		}
 	}
 
