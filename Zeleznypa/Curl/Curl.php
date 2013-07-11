@@ -27,6 +27,9 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	/** @var string $endpoint */
 	private $endpoint;
 
+	/** @var FALSE | array $error */
+	private $error = FALSE;
+
 	/** @var array $info */
 	private $info;
 
@@ -195,6 +198,16 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	}
 
 	/**
+	 * cURL error getter
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @return FALSE | array
+	 */
+	public function getError()
+	{
+		return $this->error;
+	}
+
+	/**
 	 * cURL response info getter
 	 * @author Pavel Železný <info@pavelzelezny.cz>
 	 * @return array
@@ -357,6 +370,22 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	}
 
 	/**
+	 * Process cURL error
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @param integer $errorCode
+	 * @param string $errorMessage
+	 * @return \Zeleznypa\Curl\Curl Provides fluent interface
+	 */
+	protected function processError($errorCode, $errorMessage)
+	{
+		if ($errorCode != 0)
+		{
+			$this->error = array('code' => $errorCode, 'message' => $errorMessage);
+		}
+		return $this;
+	}
+
+	/**
 	 * Process cURL options
 	 * @author Pavel Železný <info@pavelzelezny.cz>
 	 * @return \Zeleznypa\Curl\Curl Provides fluent interface
@@ -376,6 +405,7 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	{
 		parent::processResponse();
 		$this->info = curl_getinfo($this->getHandler());
+		$this->processError(curl_errno($this->getHandler()), curl_error($this->getHandler()));
 		return $this;
 	}
 
