@@ -55,6 +55,16 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	}
 
 	/**
+	 * Factory
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @return \Zeleznypa\Curl\Curl Provides fluent interface
+	 */
+	public static function create()
+	{
+		return new self;
+	}
+
+	/**
 	 * URL argument getter
 	 * @author Pavel Železný <info@pavelzelezny.cz>
 	 * @param string|integer $argumentName
