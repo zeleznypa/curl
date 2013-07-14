@@ -210,11 +210,12 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	/**
 	 * cURL response info getter
 	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @param string $code index of information
 	 * @return array
 	 */
-	public function getInfo()
+	public function getInfo($code = NULL)
 	{
-		return $this->info;
+		return $code === NULL ? $this->info : (isset($this->info[$code]) ? $this->info[$code] : NULL);
 	}
 
 	/**
@@ -344,6 +345,16 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	public function getRequestOptions()
 	{
 		return $this->getDefaultOptions() + $this->getOptions();
+	}
+
+	/**
+	 * Get cURL response http code
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @return string
+	 */
+	public function getResponseCode()
+	{
+		return $this->getInfo('http_code');
 	}
 
 	/**
