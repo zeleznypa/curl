@@ -65,6 +65,80 @@ class Curl extends \Zeleznypa\Curl\SimpleCurl
 	}
 
 	/**
+	 * Simple way to call DELETE request
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @param string $url
+	 * @param mixed $data
+	 * @param array $options
+	 * @return tring|FALSE False on error
+	 */
+	public static function delete($url, $data = NULL, $options = array())
+	{
+		return self::create()
+						->setCommunicationMethod(self::DELETE)
+						->setUrl($url)
+						->setData($data)
+						->setOptions($options)
+						->execute()
+						->getResult();
+	}
+
+	/**
+	 * Simple way to call GET request
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @param string $url
+	 * @param array $options Optional cURL options
+	 * @return string|FALSE False on error
+	 */
+	public static function get($url, $options = array())
+	{
+		return self::create()
+						->setCommunicationMethod(self::GET)
+						->setUrl($url)
+						->setOptions($options)
+						->execute()
+						->getResult();
+	}
+
+	/**
+	 * Simple way to call POST request
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @param string $url
+	 * @param mixed $data
+	 * @param array $options
+	 * @return tring|FALSE False on error
+	 */
+	public static function post($url, $data = NULL, $options = array())
+	{
+		return self::create()
+						->setCommunicationMethod(self::POST)
+						->setUrl($url)
+						->setData($data)
+						->setOptions($options)
+						->execute()
+						->getResult();
+	}
+
+	/**
+	 * Simple way to call PUT request
+	 * @author Pavel Železný <info@pavelzelezny.cz>
+	 * @param string $url
+	 * @param mixed $data
+	 * @param array $options
+	 * @return tring|FALSE False on error
+	 */
+	public static function put($url, $data = NULL, $options = array())
+	{
+		return self::create()
+						->setCommunicationMethod(self::PUT)
+						->setUrl($url)
+						->setData($data)
+						->setOptions($options)
+						->execute()
+						->getResult();
+	}
+
+	/**
 	 * URL argument getter
 	 * @author Pavel Železný <info@pavelzelezny.cz>
 	 * @param string|integer $argumentName
